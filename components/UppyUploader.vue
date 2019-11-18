@@ -1,36 +1,26 @@
 <template lang="html">
   <div class="">
-    <div class="for-DragDrop"></div>
 
-    <!-- Progress bar #2 -->
-    <div class="for-ProgressBar"></div>
 
-    <button class="upload-button" @click="upload">Upload</button>
+    <div class="uppy"></div>
 
-    <img :src="thumbnail" />
-    <!-- Uploaded files list #2 -->
-    <div class="uploaded-files">
-      <h5>Uploaded files:</h5>
-      <ol></ol>
-    </div>
   </div>
 </template>
 
 <script>
 
 import Uppy from "@uppy/core";
-import "@uppy/core/dist/style.min.css";
-
+import Dashboard from "@uppy/dashboard";
 import Tus from "@uppy/tus";
-import DragDrop from "@uppy/drag-drop";
-import ProgressBar from "@uppy/progress-bar";
-import ThumbnailGenerator from "@uppy/thumbnail-generator";
+
+import "@uppy/core/dist/style.min.css";
+import "@uppy/dashboard/dist/style.min.css";
 
 export default {
   data(){
     return {
       uppy: null,
-      thumbnail: null
+      imageThumbnails: []
     }
   },
   methods: {
@@ -38,22 +28,30 @@ export default {
       console.log("success!");
     },
     init(){
-      this.uppy = new Uppy({ debug: true, autoProceed: false });
+      this.uppy = new Uppy({ debug: true, autoProceed: false, restrictions: { allowedFileTypes: ['image/*', 'video/*'] } });
       this.uppy
-        .use(DragDrop, { target: '.for-DragDrop' })
-        .use(Tus, { endpoint: 'https://master.tus.io/files/', limit: 10 })
-        .use(ProgressBar, { target: '.for-ProgressBar', hideAfterFinish: false })
-        .use(ThumbnailGenerator, {
-          thumbnailWidth: 200,
-          thumbnailHeight: 200,
-          waitForThumbnailsBeforeUpload: false
+        .use(Dashboard, {
+          target: ".uppy",
+          inline: true,
+          replaceTargetContent: true,
+          showProgressDetails: true,
+          height: 470,
+          metaFields: [
+            { id: 'name', name: 'Name', placeholder: 'file name' },
+            { id: 'caption', name: 'Caption', placeholder: 'describe what the image is about' }
+          ],
+          browserBackButtonClose: true
         })
-        .on('upload-success', this.onSuccess('.example-two .uploaded-files ol'));
+        .use(Tus, { endpoint: 'http://localhost:1337/upload/', limit: 10, resume: true, chunkSize: 5242880  })
+        .on('upload-success', this.onSuccess('.example-two .uploaded-files ol'))
+        .on("file-added", (file) => {
+          console.log("file was addded");
+          console.log(file);
+        });
 
-      this.uppy.on('thumbnail:generated', (file, preview) => {
-        this.thumbnail = preview;
-        console.log("thumb");
-      })
+    },
+    toggleCrop(){
+      this.needsCrop = !this.needsCrop;
     },
     upload(){
       console.log("get read.....");
