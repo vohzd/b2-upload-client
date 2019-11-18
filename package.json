@@ -1,0 +1,17 @@
+{
+  "name": "b2-upload-client",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "nuxt",
+    "generate": "nuxt generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vohzd/b2-upload-client.git"
+  },
+  "homepage": "https://github.com/vohzd/b2-upload-client#readme",
+  "dependencies": {
+    "@nuxtjs/axios": "^5.8.0",
+    "nuxt": "^2.10.2"
+  }
+}
