@@ -1,18 +1,18 @@
 <template lang="html">
   <div class="">
-    <h1>Image uploader</h1>
+    <h1>Uppy uploader</h1>
     <no-ssr>
-      <file-uploader></file-uploader>
+      <uppy-uploader></uppy-uploader>
     </no-ssr>
   </div>
 </template>
 
 <script>
-import FileUploader from "~/components/FileUploader.vue";
+import UppyUploader from "~/components/UppyUploader.vue";
 
 export default {
   components: {
-    FileUploader
+    UppyUploader
   },
 }
 </script>
