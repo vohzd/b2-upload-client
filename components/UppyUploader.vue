@@ -24,11 +24,8 @@ export default {
     }
   },
   methods: {
-    onSuccess(){
-      console.log("success!");
-    },
     init(){
-      this.uppy = new Uppy({ debug: true, autoProceed: false, restrictions: { allowedFileTypes: ['image/*', 'video/*'] } });
+      this.uppy = new Uppy({ debug: false, autoProceed: false, restrictions: { allowedFileTypes: ['image/*', 'video/*'] } });
       this.uppy
         .use(Dashboard, {
           target: ".uppy",
@@ -42,13 +39,8 @@ export default {
           ],
           browserBackButtonClose: true
         })
-        .use(Tus, { endpoint: 'http://localhost:1337/upload/', limit: 10, resume: true, chunkSize: 5242880  })
-        .on('upload-success', this.onSuccess('.example-two .uploaded-files ol'))
-        .on("file-added", (file) => {
-          console.log("file was addded");
-          console.log(file);
-        });
-
+        .use(Tus, { endpoint: 'http://localhost:1337/upload/', limit: 10, resume: true, chunkSize: 5242880, removeFingerprintOnSuccess: true  })
+        .on("complete", (result) => { this.saveMetaData(result) })
     },
     toggleCrop(){
       this.needsCrop = !this.needsCrop;
@@ -56,6 +48,10 @@ export default {
     upload(){
       console.log("get read.....");
       this.uppy.upload();
+    },
+    saveMetaData(result){
+      console.log("SAVE TO DISK");
+      console.log(result);
     }
   },
   mounted(){
