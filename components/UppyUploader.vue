@@ -1,9 +1,7 @@
 <template lang="html">
   <div class="">
-
-
-    <div class="uppy"></div>
-
+    <button @click="test">Test Backblaze</button>
+    <!--<div class="uppy"></div>-->
   </div>
 </template>
 
@@ -20,12 +18,15 @@ export default {
   data(){
     return {
       uppy: null,
-      imageThumbnails: []
+      imageThumbnails: [],
+      fileMeta: []
     }
   },
   methods: {
     init(){
-      this.uppy = new Uppy({ debug: false, autoProceed: false, restrictions: { allowedFileTypes: ['image/*', 'video/*'] } });
+      //restrictions: { allowedFileTypes: ['image/*', 'video/*', 'audio/*'] }
+      /*
+      this.uppy = new Uppy({ debug: false, autoProceed: false  });
       this.uppy
         .use(Dashboard, {
           target: ".uppy",
@@ -33,14 +34,15 @@ export default {
           replaceTargetContent: true,
           showProgressDetails: true,
           height: 470,
-          metaFields: [
-            { id: 'name', name: 'Name', placeholder: 'file name' },
-            { id: 'caption', name: 'Caption', placeholder: 'describe what the image is about' }
-          ],
           browserBackButtonClose: true
         })
         .use(Tus, { endpoint: 'http://localhost:1337/upload/', limit: 10, resume: true, chunkSize: 5242880, removeFingerprintOnSuccess: true  })
         .on("complete", (result) => { this.saveMetaData(result) })
+        */
+    },
+    async test(){
+      const fileReq = await this.$axios.post("http://localhost:1337/save-file");
+      console.log(fileReq);
     },
     toggleCrop(){
       this.needsCrop = !this.needsCrop;
@@ -49,9 +51,26 @@ export default {
       console.log("get read.....");
       this.uppy.upload();
     },
-    saveMetaData(result){
-      console.log("SAVE TO DISK");
-      console.log(result);
+    async saveMetaData(result){
+      result.successful.forEach(async (v, i) => {
+        console.log("looping...");
+        let fileReq = await this.$axios.post("http://localhost:1337/save-file", {
+          "file":
+            {
+              "fileName": v.data.name,
+              "fileSize": v.data.size,
+              "fileType": v.data.type,
+              "fileExtension": v.extension,
+              "fileExif": v.data.exifdata,
+              "fileId": v.uploadURL.split("/upload/files/")[1]
+            }
+          });
+        console.log(fileReq);
+      });
+
+
+      // now upload to express
+
     }
   },
   mounted(){
